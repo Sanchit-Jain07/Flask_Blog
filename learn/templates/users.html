@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block body %}
+	{% for user in User %}
+		<div class="container">
+			<div class="ml-7 row">
+				<img style="width: 64px; height: 64px" class="rounded-circle row" src="{{ url_for('static', filename='profile_pics/'+user.image_file) }}">
+				<a class="ml-4 mt-2" href="{{ url_for('users.user_posts', username=user.username) }}"><h2>{{ user.username }}</h2></a>
+			</div>
+		</div><br>
+	{% endfor %}
+{% endblock %}

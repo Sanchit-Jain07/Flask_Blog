@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block body %}
+	<div class="row">
+		<div style="width: 58%" class="container border">
+			<div style="padding: 2rem"><br>
+				<div class="row">
+					<div class="ml-2 row">
+						<img style="width: 128px; height: 128px" class="rounded-circle row" src="{{ image_file }}"></img>
+						<div class="ml-4 mt-3">
+							<a style="text-decoration: none" href="{{ url_for('users.account') }}"><h1>{{ current_user.username }}</h1></a>
+							<p>{{ current_user.email }}</p>
+						</div>
+					</div>
+					<div class="mt-5">
+						<ul style="list-style: none">
+							<li><h6>Following - {{current_user.followed.count()}} </h6></li>
+							<li><h6>Followers - {{current_user.followers.count()}} </h6></li>
+						</ul>
+					</div>
+				</div>
+				<br>
+				<legend class="border-bottom mb-4">Profile Info</legend>
+				<form class="Profile_me shadow-lg p-3 mb-5 bg-white rounded" method="POST" action="" enctype="multipart/form-data">
+					{{ form.hidden_tag() }}
+					<div class="form-group">
+						{{ form.username.label(class="form-control-label") }}
+						{{ form.username(class="form-control form-control-lg") }}
+					</div>
+					<div class="form-group">
+						{{ form.email.label(class="form-control-label") }}
+						{{ form.email(class="form-control form-control-lg") }}
+					</div>
+					<div class="form-group">
+						{{ form.picture.label }}
+						{{ form.picture(class="form-control-file") }}
+						{% if form.picture.errors %}
+							{% for error in form.picture.errors %}	
+								<span class="text-danger">{{ error }}</span><br>
+							{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.submit(class="btn btn-primary") }}
+					</div>
+				</form>
+			</div>
+			<div class="my_posts" style="margin-top: 20px; padding: 2rem">
+				<legend>My Posts</legend>
+				<hr>
+				{% for post in posts %}
+				<div class="border shadow-lg p-3 mb-5 bg-white rounded">
+					<div style="margin-bottom: 20px;height: 300px !important;overflow: hidden;background-color:linear-gradient(to bottom, rgba(255,255,255, 0),rgba(255,255,255, 1) 90%);" class="container">
+						<div class="row">
+							<img style="width: 64px; height: 64px" class="rounded-circle ml-2" src="{{ url_for('static', filename='profile_pics/'+current_user.image_file) }}">
+							<div class="ml-4">
+								<h2><a style="text-decoration: none" href="{{ 	url_for('posts.post', post_id=post.id) }}">{{ post.title }}	</a></h2>
+								<h6>By <a href="#">{{ post.author.username }}</a> on 	{{post.date_time.strftime("%d/%m/%Y") }}</h6>
+							</div>
+						</div>
+						<hr>
+						<p>{{ post.content|safe }}...
+						</p>
+						</div>
+					<a class="btn btn-primary btn-sm ml-2" href="{{ url_for('posts.post', post_id = post.id) }}">Read More</a>
+				</div>
+			{% endfor %}
+			</div>
+
+
+			<div class="my_comments" style="margin-top: 20px; padding: 2rem">
+				<legend>My Comments</legend>
+				<hr>
+				{% for comment in current_user.comments %}
+				<div class="border shadow-lg p-3 mb-5 bg-white rounded">
+					<div style="margin-bottom: 20px;overflow: hidden;background-color:linear-gradient(to bottom, rgba(255,255,255, 0),rgba(255,255,255, 1) 90%);" class="container">
+						<hr>
+						<h2><i>"{{ comment.message }}"</i> on <a class="text-primary" href="{{url_for('posts.post', post_id=comment.post_id)}}">{{ posts_dict[comment.post_id] }}</a>
+						</h2>
+					</div>
+				</div>
+			{% endfor %}
+			</div>
+		</div>
+		<div style="width: 30%" class="container border">
+			<legend style="text-align: center;">Followers</legend><hr>
+			<div style="text-align: center" class="shadow">
+				{% if current_user.followers.count() > 0 %}
+					{% for i in current_user.followers.all() %}
+						<div class="row ml-5">
+							<img style="width: 45px; height: 45px" class="rounded-circle row" src="{{ url_for('static', filename='profile_pics/'+i.image_file) }}"></img>
+							<h6 class="ml-3 mb-4" style="padding: 0.5rem"><a style="font-size: 1.2rem" href="{{ url_for('users.user_posts', username=i.username) }}">{{i.username}}</a></h6>
+						</div>
+					{% endfor %}
+				{% else %}
+					<h6 style="padding: 0.5rem"><small>No Followers</small></h6>
+				{% endif %}
+			</div><br><br>
+			<legend style="text-align: center">Following</legend><hr>
+			<div style="text-align: center" class="shadow">
+				{% if current_user.followed.count() > 0 %}
+					{% for i in current_user.followed.all() %}
+						<div style="justify-content: center;" class="row">
+							<img style="width: 45px; height: 45px" class="rounded-circle row" src="{{ url_for('static', filename='profile_pics/'+i.image_file) }}"></img>
+							<h6 class="ml-3 mb-4" style="padding: 0.5rem"><a style="font-size: 1.2rem" href="{{ url_for('users.user_posts', username=i.username) }}">{{i.username}}</a></h6>
+						</div>
+					{% endfor %}
+				{% else %}
+					<h6 style="padding: 0.5rem"><small>No Following</small></h6>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+
+
+    {% block summer %}{% endblock %}
+
+	{% if title %}
+		<title>Learn-{{ title }}</title>
+	{% else %}
+		<title>Learn</title>
+	{% endif %}
+	<style type="text/css">
+		a{
+			color: black;
+		}
+	</style>
+</head>
+<body> 
+	<!-- nav -->
+	<header>
+		<nav style="background-color: #658CBB;" class="navbar navbar-expand-md navbar-light fixed-top">
+			{% if current_user.is_authenticated %}
+				<a class="navbar-brand" href="{{ url_for('users.account') }}">{{ current_user.username }}</a>
+			{% else %}
+				<a class="navbar-brand" href="#">Flasky</a>
+			{% endif %}
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+		  	</button>
+			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+		    	<div class="navbar-nav">
+		      		<a class="nav-item nav-link" href="/home">Home <span class="sr-only"></span></a>
+		      		<a class="nav-item nav-link" href="/users">Users <span class="sr-only"></span></a>
+		      		{% if current_user.is_authenticated %}
+		      			<a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
+		      			<a class="nav-item nav-link" href="{{ url_for('posts.new_post') }}">New Post</a>
+		      			<a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+		      		{% else %}
+		      			<a class="nav-item nav-link" href="{{ url_for('users.register') }}">	Register</a>
+		      			<a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>
+		      		{% endif %}
+		    	</div>
+		  	</div>
+		</nav>
+	</header>
+	<!-- nav end -->
+
+
+
+	<!-- flash -->
+	<div style="margin-top: 90px; width: 60%" class="container">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-{{ category }}">
+				{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</div>
+	<!-- flash end -->
+
+	<div class="container">
+		<div class="row">
+			<div style="width: 70%" class="container shadow-lg p-3 mb-5 bg-white rounded">
+				<div style="margin-bottom: 20px" class="container border">
+					<div class="row">
+						<img style="width: 64px; height: 64px" class="rounded-circle mt-2 ml-2" src="{{ url_for('static', filename='profile_pics/'+post.author.image_file) }}">
+						<div class="ml-3">
+							<h2>{{ post.title }}</h2>
+							<h6>By {{ post.author.username }}<span class="tab"></span>
+							<small>on {{ post.date_time.strftime("%d/%m/%Y") }}</small></h6>
+						</div>
+					</div>
+					{% if current_user == post.author %}
+						<a class="btn btn-primary btn-sm m-1" href="{{ url_for('posts.update_post', post_id = post.id) }}">Update</a>
+						<button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#DeletePost">Delete</button>
+					{% endif %}
+					<hr>
+					<div style="word-wrap: break-word;font-size: 1.2rem">
+						<p>{{ post_content|safe }}</p>
+					</div>
+				</div>
+				<div class="modal fade" id="DeletePost" tabindex="-1" role="dialog" aria-labelledby="DeletePostTitle" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+					  	<div class="modal-content">
+					    	<div class="modal-header">
+					      		<h5 class="modal-title" id="DeletePostTitle">Delete {{ post.title }}?</h5>
+					      		<button type="button" class="close" data-dismiss="modal"aria-label="Close">
+					        		<span aria-hidden="true">&times;</span>
+					      		</button>
+					    	</div>
+					    	<div class="modal-body">
+					      		Are you sure you want to delete '{{ post.title }}' permanently ?<br>
+					      		<small><b>NOTE : You will not be able to restore once it is deleted</b></small>
+					    	</div>
+					    	<div class="modal-footer">
+					      		<button type="button" class="btn btn-primary" data-dismiss="modal">
+					      		Cancel
+					      		</button>
+					      		<form action="{{ url_for('posts.delete_post', post_id = post.id) }}" method="POST">
+					      			<input class="btn btn-danger" type="submit" value="Yes, Delete Post">
+					      		</form>
+					    	</div>
+					  	</div>
+					</div>
+				</div>
+			</div>
+			<div>
+				<div style="padding: 20px" class="shadow-lg p-3 mb-5 bg-white rounded">
+					{% if current_user.is_authenticated %}
+						<form action="" method="POST">
+							{{ comment_form.hidden_tag() }}
+							<div class="form-group">
+								{{ comment_form.message.label(class="form-control-label") }}
+								{{ comment_form.message(class="form-control form-control-lg") }}
+							</div>
+							<div name="message" class="form-group">
+								{{ comment_form.submit(class = "btn btn-outline-info") }}
+							</div>
+						</form>
+					{% endif %}
+					<legend style="justify-content: center; text-align: center">Comments</legend>
+					<hr>
+					<div class="">
+						{% for comment in comments %}
+							{% if comment.post_id == post.id %}
+								{% if post.author.id == comment.user_id %}
+									<p><b><a href="{{ url_for('users.user_posts', username=d[comment.user_id]) }}">{{ d[comment.user_id] }}(author)</a></b> : <i style="text-align: center">{{ comment.message }}</i></p>
+								{% else %}
+									<p><b><a href="{{ url_for('users.user_posts',  username=d[comment.user_id]) }}">{{ d[comment.user_id] }}</a></b> : <i style="text-align: center">{{ comment.message }}</i></p>
+								{% endif %}
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
