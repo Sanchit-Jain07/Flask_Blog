@@ -28,3 +28,12 @@ class UpdateForm(FlaskForm):
 class CommentForm(FlaskForm):
 	message = TextAreaField('Enter Comment', validators=[DataRequired()])
 	submit = SubmitField('Post Comment')
+
+class RequestResetForm(FlaskForm):
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	submit = SubmitField('Request Password Reset')
+
+class ResetPassword(FlaskForm):
+	password = PasswordField('Password', validators=[DataRequired()])
+	confirm_password = PasswordField('Confirm password', validators=[DataRequired(), EqualTo('password')])
+	submit = SubmitField('Reset Password')
